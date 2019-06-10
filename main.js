@@ -20,6 +20,7 @@ app.get('/', (req, res, next) => {
   let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   arp.getMAC(ipAddress, function (error, mac) {
     res.json({ 'ipAddress': ipAddress, 'mac': mac })
+    console.log(`New connection from ${ipAddress} with MAC ${mac}`)
     if (error) {
       console.log(error)
     }
@@ -28,7 +29,7 @@ app.get('/', (req, res, next) => {
 
 app.post('/mac', async (req, res, next) => {
   let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-  if (process.env.DEVELOPMENT) {
+  if (process.env.DEVELOPMENT === true) {
     ipAddress = process.env.DEVICE_TEST_IP
   }
   let txId = req.body['txId']
@@ -41,5 +42,3 @@ app.post('/mac', async (req, res, next) => {
     res.status(503).send({ status: error.message })
   }
 })
-
-setInterval(() => console.log('Check expired MAC address connections ... TODO'), 60000)
