@@ -5,6 +5,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Node virtual environment
+venv
+
+# User data
+data/*.json
+
 # Runtime data
 pids
 *.pid
