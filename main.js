@@ -29,9 +29,11 @@ app.get('/', (req, res, next) => {
 
 app.post('/mac', async (req, res, next) => {
   let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-  if (process.env.DEVELOPMENT === true) {
+  if (process.env.DEVELOPMENT) {
     ipAddress = process.env.DEVICE_TEST_IP
   }
+  console.log(ipAddress)
+  console.log(process.env.DEVELOPMENT)
   let txId = req.body['txId']
   let timeLeft = req.body['timeLeft']
   try {
