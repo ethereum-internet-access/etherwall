@@ -12,12 +12,12 @@ const CONNECTIONS = new Connections('data/data.json')
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.listen(80, '0.0.0.0', () => {
-  dns.lookup('rinkeby.infura.io', async (error, infuraIpAddress) => {
+app.listen(process.env.PORT, '0.0.0.0', () => {
+  dns.lookup(process.env.INFURA, async (error, infuraIpAddress) => {
     if (!error) {
       console.log(`Infura address: ${infuraIpAddress}`)
       iptables.setupCaptivePortal(process.env.PORTAL_IP, infuraIpAddress)
-      console.log('Server running on port 80')
+      console.log(`Server running on port ${process.env.PORT}`)
     }
   })
 })
