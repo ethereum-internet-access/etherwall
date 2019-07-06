@@ -32,8 +32,6 @@ app.post('/mac', async (req, res, next) => {
   if (process.env.DEVELOPMENT) {
     ipAddress = process.env.DEVICE_TEST_IP
   }
-  console.log(ipAddress)
-  console.log(process.env.DEVELOPMENT)
   let txId = req.body['txId']
   let timeLeft = req.body['timeLeft']
   try {
