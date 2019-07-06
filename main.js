@@ -3,6 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 let arp = require('node-arp')
+let dns = require('dns')
 let iptables = require('./lib/iptables.js')
 let Connections = require('./lib/connections.js')
 
@@ -12,8 +13,13 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.listen(80, '0.0.0.0', () => {
-  iptables.setupCaptivePortal(process.env.PORTAL_IP)
-  console.log('Server running on port 80')
+  dns.lookup('rinkeby.infura.io', async (error, infuraIpAddress) => {
+    if (!error) {
+      console.log(`Infura address: ${infuraIpAddress}`)
+      iptables.setupCaptivePortal(process.env.PORTAL_IP, infuraIpAddress)
+      console.log('Server running on port 80')
+    }
+  })
 })
 
 app.get('/', (req, res, next) => {
