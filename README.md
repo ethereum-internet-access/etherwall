@@ -3,86 +3,48 @@ Back-end to control network ip packet forwarding
 
 ## Initial setup
 
-### Required software installation
+You can find initial setup instructions [here](doc/SETUP.md).
+
+## Endpoints & methods
+
+### GET http://192.168.4.1
+
+For testing purposes:
 
 ```
-$ sudo apt-get install dnsmasq hostapd rfkill iptables
+$ curl -XGET http://192.168.4.1/
 ```
 
-### Check rfkill configuration
-
-Check rfkill command
+Response:
 
 ```
-$ sudo rfkill list
-0: phy0: Wireless LAN
-	Soft blocked: yes
-	Hard blocked: no
-1: hci0: Bluetooth
-	Soft blocked: yes
-	Hard blocked: no
-$ sudo rfkill unblock 0
+{"ipAddress":"192.168.4.18","mac":"00:73:ac:a3:21:b1"}
 ```
 
-### Generate hostapd configuration
+Containing your ip address and your mac; mac is obtained using
+[node-arp](https://www.npmjs.com/package/node-arp).
 
-Generate file /etc/hostapd/hostapd.conf configuration like:
+### POST http://192.168.4.1/mac
 
-```
-interface=wlan0
-driver=nl80211
-country_code=ES # important to set the region
-ssid=ExampleSSID
-ieee80211d=1
-hw_mode=g
-channel=3
-ieee80211n=1
-wmm_enabled=1
-ht_capab=[HT40][SHORT-GI-20][DSSS_CCK-40]
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-wpa=2
-wpa_key_mgmt=WPA-PSK
-wpa_passphrase=ExamplePassword
-rsn_pairwise=CCMP
-```
-
-and change corresponding line in /etc/default/hostapd
+Example:
 
 ```
-DAEMON_CONF="/etc/hostapd/hostapd.conf"
+curl -H 'Content-Type: application/json' -XPOST http://192.168.1.36/mac --data '{"timeLeft": 3600, "txId": e472b7 ... 39cead9"}'
 ```
 
-### Edit /etc/dnsmasq.conf
+This check transaction correctness and confirmation and after that, configure
+the firewall in order to grant access to the internet during timeLeft.
 
-Uncomment and edit:
+## Utilities
 
-```
-# If you want dnsmasq to listen for DHCP and DNS requests only on
-# specified interfaces (and the loopback) give the name of the
-# interface (eg eth0) here.
-# Repeat the line for more than one interface.
-interface=wlan0
-dhcp-range=wlan0,192.168.4.50,192.168.4.150,12h
-```
-### Bring wlan0 interface up
+### Reset iptables
 
 ```
-$ sudo ip link set wlan0 up
-$ sudo ifconfig wlan0 192.168.4.1
+(venv) $ sudo node utils/resetIptables.js
 ```
 
-### Setup traffic forwarding
-
-Edit /etc/sysctl.conf
+### iptables monitor
 
 ```
-net.ipv4.ip_forward=1
-```
-
-and execute command:
-
-```
-$ sudo sysctl -p /etc/sysctl.conf
+(venv) $ sudo node utils/monitor.js
 ```
