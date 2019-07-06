@@ -22,15 +22,9 @@ app.listen(process.env.PORT, '0.0.0.0', () => {
   })
 })
 
-app.get('/', (req, res, next) => {
-  let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-  arp.getMAC(ipAddress, function (error, mac) {
-    res.json({ 'ipAddress': ipAddress, 'mac': mac })
-    console.log(`New connection from ${ipAddress} with MAC ${mac}`)
-    if (error) {
-      console.log(error)
-    }
-  })
+app.get('/generate_204', (req, res, next) => {
+  console.log('Android device')
+  res.redirect('/')
 })
 
 app.post('/mac', async (req, res, next) => {
@@ -47,4 +41,15 @@ app.post('/mac', async (req, res, next) => {
   } catch (error) {
     res.status(503).send({ status: error.message })
   }
+})
+
+app.get('*', (req, res, next) => {
+  let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+  arp.getMAC(ipAddress, function (error, mac) {
+    res.json({ 'ipAddress': ipAddress, 'mac': mac })
+    console.log(`New connection from ${ipAddress} with MAC ${mac}`)
+    if (error) {
+      console.log(error)
+    }
+  })
 })
