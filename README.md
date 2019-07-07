@@ -5,6 +5,54 @@ Back-end to control network ip packet forwarding
 
 You can find initial setup instructions [here](doc/SETUP.md).
 
+## Installing dependencies locally
+
+Using nodeenv-1.3.3 in order to avoid polluting the host NodeJS system:
+
+```
+$ sudo apt-get install python-pip
+$ sudo pip install nodeenv
+$ nodeenv --node 10.15.1 venv
+$ source venv/bin/activate
+(venv) $ npm install
+```
+
+## Configuration
+
+File .env.sample contains sample configuration; copy it to .env and edit
+its values to match your configuration:
+
+- PORTAL_IP=192.168.4.1 (depending on your final setup)
+- DEVICE_TEST_IP=192.168.4.101 (in order to test a particular device if DEVELOPMENT is set to true)
+- DEVELOPMENT=false
+- INFURA=rinkeby.infura.io (Infura Domain Name)
+- PORT=3001 (API port)
+
+## Running the server
+
+Execute inside virtual environment shell:
+
+```
+(venv) $ node main.js
+```
+
+## Nginx configuration
+
+In order to serve the API through 80 port:
+
+```
+server {
+       listen 80 default_server;
+       listen [::]:80 default_server;
+       server_name _;
+
+       location / {
+                proxy_pass http://127.0.0.1:3001/;
+                proxy_http_version 1.1;
+        }
+}
+```
+
 ## Endpoints & methods
 
 ### GET http://192.168.4.1
