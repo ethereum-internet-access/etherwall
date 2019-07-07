@@ -33,8 +33,11 @@ its values to match your configuration:
 Execute inside virtual environment shell:
 
 ```
-(venv) $ node main.js
+(venv) $ sudo node main.js
 ```
+
+Notice that since the API reads and modifies iptables, this backend
+should be executed with superuser privileges.
 
 ## Nginx configuration
 
