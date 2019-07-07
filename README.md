@@ -7,31 +7,30 @@ transactions.
 ## Development status demo 1
 
 Currently, we already have a NodeJS backend together with Nginx that configures
-iptables in order to act as a captive portal using the
+iptables to act as a captive portal using the
 [generate_204](https://www.chromium.org/chromium-os/chromiumos-design-docs/network-portal-detection)
 endpoint to trigger captive portal frontend loading on Android devices.
 
 ![demo-1](doc/demo-1.gif)
 
-Right now, we still have to begin implementing the frontend in order to perform the payment
+Right now, we still have to start implementing the frontend to perform the payment
 transactions using [MetaMask](https://metamask.io) plugin; so currently
-the back end accepts unconditionally
-any time requests for demo purposes.
+the backend accepts unconditionally any time requests for demo purposes.
 
 ## Main workflow steps prevision
 
 ### End user connects to an open WiFi
 
 WiFi hotspot using hostapd on a Raspberry Pi using Raspbian or OSMC system (see [doc/SETUP.md](doc/SETUP.md)).
-Please notice that this is the weakest step from security point of view; since you are allowing users
-to connect to your wireless network and in case you have services apart from the captive portal
-unprotected, they can be susceptible to attacks; for example, in particular you should ensure you change the
+Please notice that this is the weakest step from a security point of view; since you are allowing users
+to connect to your wireless network, in case you have unprotected services apart from the captive portal,
+they can be target of attacks; for example, in particular you should ensure to change the
 default osmc/osmc pi/raspberry password schemas in order to prevent an attacker to take control
 of your system.
 
 ### DHCP servce
 
-User device gets an ip address from dnsmasq running in the
+User device gets an ip address from dnsmasq running over the
 Raspberry Pi (see [doc/SETUP.md](doc/SETUP.md)).
 
 ### Captive portal detection
@@ -46,21 +45,21 @@ to sign a payment transaction of ethereums or smart contract
 tokens for some service time duration. When the backend is executed,
 one of the first thing it does is to allow all kinds of traffic to
 [Infura's RPC API](https://infura.io)
-hosts in order to allow the user to reach a relayer although does not have
-broad internet connectivity.
+hosts in order to allow end users to reach a relayer although do not have
+a broader internet connectivity.
 
 ### Frontend notifies backend about the relayed transaction
 
 Frontend sends the time duration of the service and the transaction hash
 in order to allow the backend to check for correctness and confirmation
-using again Infura's RPC API; in case everything is fine, sets up on iptables
-the rules needed to forward and retrieve user's traffic based on device's MAC address.
+using again Infura's RPC API; in case everything is fine, sets up rues needed over iptables
+to forward and retrieve user's traffic based on device's MAC address.
 
 ### End of service
 
-Backend keeps internal track of each connected device MAC and periodically checks
+Backend keeps internal track of each connected device MAC address and periodically checks
 end of service condition; in case the user has no service time left it revokes
-connectivity deleting the associated MAC address rules on iptables.
+connectivity deleting the associated MAC address rules over iptables.
 
 ## Initial setup
 
