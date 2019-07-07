@@ -1,10 +1,59 @@
 # etherwall
-Back-end to control network ip packet forwarding
-
+Back-end to control network ip packet forwarding in order
+to allow ISP customers to share their internet connection
+using WiFi depending on end users performing token/ethereum payment
+transactions.
 
 ## Development status demo 1
 
+Currently, we already have a NodeJS backend together with Nginx that configures
+iptables in order to act as a captive portal using the
+[generate_204](https://www.chromium.org/chromium-os/chromiumos-design-docs/network-portal-detection)
+endpoint to trigger captive portal frontend loading on Android devices.
+
 ![demo-1](doc/demo-1.gif)
+
+Right now, we still have to begin implementing the frontend in order to perform the payment
+transactions using [MetaMask](https://metamask.io) plugin; so the back end accepts unconditionally
+any time requests for demo purposes.
+
+## Main workflow steps prevision
+
+### End user connects to an open WiFi
+
+WiFI hostpot using hostapd on a Raspberry Pi using Raspbian or OSMC system (see [doc/SETUP.md](doc/SETUP.md)).
+Please notice that this is the weakest step from security point of view; since you are allowing users
+to connect to your wireless network and in case you have services apart from the captive portal
+unprotected, they can be susceptible to attacks; for example, in particular you should ensure you change the
+default osmc/osmc pi/raspberry password schemas in order to prevent an attacker to take control
+of your system.
+
+### DHCP servce
+
+User device gets an ip address from dnsmasq running in the
+Raspberry Pi (see [doc/SETUP.md](doc/SETUP.md)).
+
+### Captive portal detection
+
+Customer device tries to get /generate_204 and obtains a redirect
+to the captive portal frontend (still on progress).
+
+### MetaMask plugin
+
+Customer uses MetaMask plugin to interact with the frontend
+to sign a payment transaction of ethereums or smart contract
+tokens for some service time duration. When the backend is executed,
+one of the first thing it does is to allow all kinds of traffic to
+[Infura's RPC API](https://infura.io)
+hosts in order to allow the user to reach a relayer although does not have
+broad internet connectivity.
+
+### Frontend notifies backend about the relayed transaction
+
+Frontend sends the time duration of the service and the transaction hash
+in order to allow the backend to check for correctness and confirmation
+using again Infura's RPC API; in case everything is fine, sets up on iptables
+the rules needed to forward and retrieve user's traffic based on device's MAC address.
 
 ## Initial setup
 
