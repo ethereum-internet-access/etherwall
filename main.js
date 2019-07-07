@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
+const axios = require('axios')
 let arp = require('node-arp')
 let dns = require('dns')
 let iptables = require('./lib/iptables.js')
@@ -13,9 +14,16 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.listen(process.env.PORT, '0.0.0.0', () => {
-  dns.lookup(process.env.INFURA, async (error, infuraIpAddress) => {
+  dns.resolve(process.env.INFURA, async (error, infuraIpAddress) => {
     if (!error) {
       console.log(`Infura address: ${infuraIpAddress}`)
+      // testing infura API
+      let infuraUrl = 'https://' + process.env.INFURA + '/v3/' + process.env.INFURA_PROJECT
+      console.log(infuraUrl)
+      let response = await axios.post(
+        infuraUrl,
+        { jsonrpc: '2.0', id: 1, method: 'eth_blockNumber', params: [] })
+      console.log(response.data)
       iptables.setupCaptivePortal(process.env.PORTAL_IP, infuraIpAddress)
       console.log(`Server running on port ${process.env.PORT}`)
     }

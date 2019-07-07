@@ -1,6 +1,11 @@
 # etherwall
 Back-end to control network ip packet forwarding
 
+
+## Development status demo 1
+
+![demo-1](doc/demo-1.gif)
+
 ## Initial setup
 
 You can find initial setup instructions [here](doc/SETUP.md).

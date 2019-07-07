@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/ethereum-internet-access/etherwall#readme",
   "dependencies": {
+    "axios": "^0.19.0",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "node-arp": "^1.0.6"
