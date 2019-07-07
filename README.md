@@ -56,6 +56,12 @@ in order to allow the backend to check for correctness and confirmation
 using again Infura's RPC API; in case everything is fine, sets up on iptables
 the rules needed to forward and retrieve user's traffic based on device's MAC address.
 
+### End of service
+
+Backend keeps internal track of each connected device MAC and periodically checks
+end of service condition; in case the user has no service time left it revokes
+connectivity deleting the associated MAC address rules on iptables.
+
 ## Initial setup
 
 You can find initial setup instructions [here](doc/SETUP.md).
