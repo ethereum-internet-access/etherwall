@@ -22,7 +22,7 @@ any time requests for demo purposes.
 
 ### End user connects to an open WiFi
 
-WiFi hostpot using hostapd on a Raspberry Pi using Raspbian or OSMC system (see [doc/SETUP.md](doc/SETUP.md)).
+WiFi hotspot using hostapd on a Raspberry Pi using Raspbian or OSMC system (see [doc/SETUP.md](doc/SETUP.md)).
 Please notice that this is the weakest step from security point of view; since you are allowing users
 to connect to your wireless network and in case you have services apart from the captive portal
 unprotected, they can be susceptible to attacks; for example, in particular you should ensure you change the
