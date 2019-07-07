@@ -14,14 +14,15 @@ endpoint to trigger captive portal frontend loading on Android devices.
 ![demo-1](doc/demo-1.gif)
 
 Right now, we still have to begin implementing the frontend in order to perform the payment
-transactions using [MetaMask](https://metamask.io) plugin; so the back end accepts unconditionally
+transactions using [MetaMask](https://metamask.io) plugin; so currently
+the back end accepts unconditionally
 any time requests for demo purposes.
 
 ## Main workflow steps prevision
 
 ### End user connects to an open WiFi
 
-WiFI hostpot using hostapd on a Raspberry Pi using Raspbian or OSMC system (see [doc/SETUP.md](doc/SETUP.md)).
+WiFi hostpot using hostapd on a Raspberry Pi using Raspbian or OSMC system (see [doc/SETUP.md](doc/SETUP.md)).
 Please notice that this is the weakest step from security point of view; since you are allowing users
 to connect to your wireless network and in case you have services apart from the captive portal
 unprotected, they can be susceptible to attacks; for example, in particular you should ensure you change the
