@@ -24,7 +24,7 @@ app.listen(process.env.PORT, '0.0.0.0', () => {
         infuraUrl,
         { jsonrpc: '2.0', id: 1, method: 'eth_blockNumber', params: [] })
       console.log(response.data)
-      iptables.setupCaptivePortal(process.env.PORTAL_IP, infuraIpAddress)
+      iptables.setupCaptivePortal(process.env.PORTAL_IP, [])
       console.log(`Server running on port ${process.env.PORT}`)
     }
   })
@@ -40,6 +40,7 @@ app.post('/mac', async (req, res, next) => {
   if (process.env.DEVELOPMENT) {
     ipAddress = process.env.DEVICE_TEST_IP
   }
+  console.log(ipAddress)
   let txId = req.body['txId']
   let timeLeft = req.body['timeLeft']
   try {
