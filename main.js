@@ -35,6 +35,10 @@ app.get('/generate_204', (req, res, next) => {
   res.redirect('/')
 })
 
+app.get('/mac', async (req, res, next) => {
+
+})
+
 app.post('/mac', async (req, res, next) => {
   let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   if (process.env.DEVELOPMENT) {
