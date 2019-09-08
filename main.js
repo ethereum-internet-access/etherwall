@@ -55,7 +55,7 @@ app.post('/mac', async (req, res, next) => {
   }
   console.log(ipAddress)
   let txId = req.body['txId']
-  let timeLeft = req.body['timeLeft']
+  let timeLeft = req.body['timeLeft'] - 10
   try {
     let connection = await CONNECTIONS.addConnection(ipAddress, txId, timeLeft)
     await iptables.grantAccess(connection.mac, txId)
