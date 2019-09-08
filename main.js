@@ -36,7 +36,16 @@ app.get('/generate_204', (req, res, next) => {
 })
 
 app.get('/mac', async (req, res, next) => {
-
+  let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+  if (process.env.DEVELOPMENT) {
+    ipAddress = process.env.DEVICE_TEST_IP
+  }
+  let connection = await CONNECTIONS.getConnectionByIpAddress(ipAddress)
+  if (connection !== null) {
+    res.status(200).send(connection)
+  } else {
+    res.status(204).send()
+  }
 })
 
 app.post('/mac', async (req, res, next) => {
