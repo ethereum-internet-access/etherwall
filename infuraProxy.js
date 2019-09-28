@@ -17,5 +17,5 @@ app.post('/', async (req, res, next) => {
   console.log(infuraUrl)
   let infuraResponse = await axios.post(infuraUrl, req.body)
   console.log(infuraResponse.data)
-  res.status(200).send(infuraResponse.data)
+  res.status(infuraResponse.status).send(infuraResponse.data)
 })
