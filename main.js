@@ -1,41 +1,34 @@
 require('dotenv').config()
-const express = require('express')
-const bodyParser = require('body-parser')
-const app = express()
-const axios = require('axios')
-let arp = require('node-arp')
-let dns = require('dns')
-let iptables = require('./lib/iptables.js')
+const EXPRESS = require('express')
+const BODY_PARSER = require('body-parser')
+const APP = EXPRESS()
+// const FS = require('fs')
+// const ETHERUTIL = require('ethereumjs-util')
+
+let ARP = require('node-arp')
+let IP_TABLES = require('./lib/iptables.js')
 let Connections = require('./lib/connections.js')
 
 const CONNECTIONS = new Connections('data/data.json')
+// const WEB3_API = require('web3')
+// const WEB3 = new WEB3_API(`${process.env.INFURA}/${process.env.INFURA_PROJECT}`, null)
+// const ABI = JSON.parse(FS.readFileSync('./contracts/abi.json', 'utf-8'))
+// const CONTRACT = new WEB3.eth.Contract(ABI, process.env.CONTRACT_ADDRESS)
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+APP.use(BODY_PARSER.urlencoded({ extended: false }))
+APP.use(BODY_PARSER.json())
 
-app.listen(process.env.PORT, '0.0.0.0', () => {
-  dns.resolve(process.env.INFURA, async (error, infuraIpAddress) => {
-    if (!error) {
-      console.log(`Infura address: ${infuraIpAddress}`)
-      // testing infura API
-      let infuraUrl = 'https://' + process.env.INFURA + '/v3/' + process.env.INFURA_PROJECT
-      console.log(infuraUrl)
-      let response = await axios.post(
-        infuraUrl,
-        { jsonrpc: '2.0', id: 1, method: 'eth_blockNumber', params: [] })
-      console.log(response.data)
-      iptables.setupCaptivePortal(process.env.PORTAL_IP, [])
-      console.log(`Server running on port ${process.env.PORT}`)
-    }
-  })
+APP.listen(process.env.PORT, '0.0.0.0', () => {
+  IP_TABLES.setupCaptivePortal(process.env.PORTAL_IP, [])
+  console.log(`Server running on port ${process.env.PORT}`)
 })
 
-app.get('/generate_204', (req, res, next) => {
+APP.get('/generate_204', (req, res, next) => {
   console.log('Android device')
   res.redirect('/')
 })
 
-app.get('/mac', async (req, res, next) => {
+APP.get('/mac', async (req, res, next) => {
   let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   if (process.env.DEVELOPMENT) {
     ipAddress = process.env.DEVICE_TEST_IP
@@ -48,7 +41,32 @@ app.get('/mac', async (req, res, next) => {
   }
 })
 
-app.post('/mac', async (req, res, next) => {
+APP.post('/payment', async (req, res, next) => {
+  // const hash = WEB3.utils.soliditySha3(
+  //   { t: 'address', v: process.env.CONTRACT_ADDRESS },
+  //   { t: 'uint256', v: req.body.amount.toString() },
+  //   { t: 'uint256', v: req.body.channelId })
+  // const signature = req.body.signature.signature
+  // const hexSignature = Buffer.from(signature.substring(2))
+  // const hexHash = Buffer.from(hash.substring(1))
+  // console.log(req.body.signature)
+  // // console.log(req.body.signature.message.substring(2))
+  // const hexMessage = Buffer.from(
+  //     req.body.signature.message.substring(2), 'hex')
+  // console.log(hexMessage.length)
+  // console.log(hash)
+  // const publicKey = await ETHERUTIL.ecrecover(hexMessage, req.body.signature.v,
+  //                                             req.body.signature.r,
+  //                                             req.body.signature.s)
+  // console.log(publicKey)
+  // const addressHex = '0x' + await ETHERUTIL.pubToAddress(publicKey).toString('hex')
+  // console.log(addressHex)
+  // console.log(publicKey)
+  // console.log(hexSignature)
+  // console.log(hexHash)
+})
+
+APP.post('/mac', async (req, res, next) => {
   let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
   if (process.env.DEVELOPMENT) {
     ipAddress = process.env.DEVICE_TEST_IP
@@ -58,16 +76,16 @@ app.post('/mac', async (req, res, next) => {
   let timeLeft = req.body['timeLeft'] - 10
   try {
     let connection = await CONNECTIONS.addConnection(ipAddress, txId, timeLeft)
-    await iptables.grantAccess(connection.mac, txId)
+    await IP_TABLES.grantAccess(connection.mac, txId)
     res.status(200).send({ status: 'success' })
   } catch (error) {
     res.status(503).send({ status: error.message })
   }
 })
 
-app.get('*', (req, res, next) => {
+APP.get('*', (req, res, next) => {
   let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-  arp.getMAC(ipAddress, function (error, mac) {
+  ARP.getMAC(ipAddress, function (error, mac) {
     res.json({ 'ipAddress': ipAddress, 'mac': mac })
     console.log(`New connection from ${ipAddress} with MAC ${mac}`)
     if (error) {
