@@ -2,18 +2,18 @@ require('dotenv').config()
 const EXPRESS = require('express')
 const BODY_PARSER = require('body-parser')
 const APP = EXPRESS()
-// const FS = require('fs')
-// const ETHERUTIL = require('ethereumjs-util')
+const FS = require('fs')
+const ETHERUTIL = require('ethereumjs-util')
 
 let ARP = require('node-arp')
 let IP_TABLES = require('./lib/iptables.js')
 let Connections = require('./lib/connections.js')
 
 const CONNECTIONS = new Connections('data/data.json')
-// const WEB3_API = require('web3')
-// const WEB3 = new WEB3_API(`${process.env.INFURA}/${process.env.INFURA_PROJECT}`, null)
-// const ABI = JSON.parse(FS.readFileSync('./contracts/abi.json', 'utf-8'))
-// const CONTRACT = new WEB3.eth.Contract(ABI, process.env.CONTRACT_ADDRESS)
+const WEB3_API = require('web3')
+const WEB3 = new WEB3_API(`${process.env.INFURA}/${process.env.INFURA_PROJECT}`, null)
+const ABI = JSON.parse(FS.readFileSync('./contracts/abi.json', 'utf-8'))
+const CONTRACT = new WEB3.eth.Contract(ABI, process.env.CONTRACT_ADDRESS)
 
 APP.use(BODY_PARSER.urlencoded({ extended: false }))
 APP.use(BODY_PARSER.json())
@@ -42,28 +42,23 @@ APP.get('/mac', async (req, res, next) => {
 })
 
 APP.post('/payment', async (req, res, next) => {
-  // const hash = WEB3.utils.soliditySha3(
-  //   { t: 'address', v: process.env.CONTRACT_ADDRESS },
-  //   { t: 'uint256', v: req.body.amount.toString() },
-  //   { t: 'uint256', v: req.body.channelId })
-  // const signature = req.body.signature.signature
-  // const hexSignature = Buffer.from(signature.substring(2))
-  // const hexHash = Buffer.from(hash.substring(1))
-  // console.log(req.body.signature)
-  // // console.log(req.body.signature.message.substring(2))
-  // const hexMessage = Buffer.from(
-  //     req.body.signature.message.substring(2), 'hex')
-  // console.log(hexMessage.length)
-  // console.log(hash)
-  // const publicKey = await ETHERUTIL.ecrecover(hexMessage, req.body.signature.v,
-  //                                             req.body.signature.r,
-  //                                             req.body.signature.s)
-  // console.log(publicKey)
-  // const addressHex = '0x' + await ETHERUTIL.pubToAddress(publicKey).toString('hex')
-  // console.log(addressHex)
-  // console.log(publicKey)
-  // console.log(hexSignature)
-  // console.log(hexHash)
+  const hash = WEB3.utils.soliditySha3(
+    { t: 'address', v: process.env.CONTRACT_ADDRESS },
+    { t: 'uint256', v: req.body.amount.toString() },
+    { t: 'uint256', v: req.body.channelId })
+  const hexMessage = Buffer.from(
+    req.body.signature.messageHash.substring(2), 'hex')
+  console.log('Computed hash:\t' + hash)
+  console.log('Sent hash:\t' + req.body.signature.message)
+  const publicKey = await ETHERUTIL.ecrecover(
+    hexMessage, req.body.signature.v,
+    req.body.signature.r,
+    req.body.signature.s)
+  const channelMapping = await CONTRACT.methods.channelMapping(req.body.channelId.toString()).call()
+  const addressHex = '0x' + await ETHERUTIL.pubToAddress(publicKey).toString('hex')
+  console.log('Recovered address:\t' + addressHex)
+  console.log('Smart contract address:\t' + channelMapping.ephemeralAddress)
+  res.status(204).send()
 })
 
 APP.post('/mac', async (req, res, next) => {
