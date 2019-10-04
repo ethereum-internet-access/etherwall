@@ -1,4 +1,5 @@
 require('dotenv').config()
+/* global BigInt */
 const EXPRESS = require('express')
 const BODY_PARSER = require('body-parser')
 const APP = EXPRESS()
@@ -42,22 +43,38 @@ APP.get('/mac', async (req, res, next) => {
 })
 
 APP.post('/payment', async (req, res, next) => {
+  let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+  if (process.env.DEVELOPMENT) {
+    ipAddress = process.env.DEVICE_TEST_IP
+  }
   const hash = WEB3.utils.soliditySha3(
     { t: 'address', v: process.env.CONTRACT_ADDRESS },
     { t: 'uint256', v: req.body.amount.toString() },
     { t: 'uint256', v: req.body.channelId })
   const hexMessage = Buffer.from(
     req.body.signature.messageHash.substring(2), 'hex')
-  console.log('Computed hash:\t' + hash)
-  console.log('Sent hash:\t' + req.body.signature.message)
+  if (hash !== req.body.signature.message) {
+    CONNECTIONS.revokeConnection(ipAddress)
+  }
   const publicKey = await ETHERUTIL.ecrecover(
     hexMessage, req.body.signature.v,
     req.body.signature.r,
     req.body.signature.s)
   const channelMapping = await CONTRACT.methods.channelMapping(req.body.channelId.toString()).call()
   const addressHex = '0x' + await ETHERUTIL.pubToAddress(publicKey).toString('hex')
-  console.log('Recovered address:\t' + addressHex)
-  console.log('Smart contract address:\t' + channelMapping.ephemeralAddress)
+  if (addressHex.toLowerCase() !== channelMapping.ephemeralAddress.toLowerCase()) {
+    CONNECTIONS.revokeConnection(ipAddress)
+  }
+  const connection = await CONNECTIONS.getConnectionByIpAddress(ipAddress)
+  const pricePerSecond = BigInt('277777777777777')
+  const seconds = Math.round((Date.now() - connection.now) / 1000.0)
+  const amountToPay = pricePerSecond * BigInt(seconds)
+  const delta = amountToPay - BigInt(req.body.amount)
+  if (delta < -(BigInt(pricePerSecond) * BigInt(60))) {
+    console.log('Underpayment')
+    CONNECTIONS.revokeConnection(ipAddress)
+  }
+  CONNECTIONS.updatePayment(ipAddress, req.body)
   res.status(204).send()
 })
 
@@ -66,7 +83,6 @@ APP.post('/mac', async (req, res, next) => {
   if (process.env.DEVELOPMENT) {
     ipAddress = process.env.DEVICE_TEST_IP
   }
-  console.log(ipAddress)
   let txId = req.body['txId']
   let timeLeft = req.body['timeLeft'] - 10
   try {
