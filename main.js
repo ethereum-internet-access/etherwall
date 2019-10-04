@@ -66,10 +66,12 @@ APP.post('/payment', async (req, res, next) => {
     CONNECTIONS.revokeConnection(ipAddress)
   }
   const connection = await CONNECTIONS.getConnectionByIpAddress(ipAddress)
-  const pricePerSecond = BigInt('277777777777777')
+  const pricePerSecond = BigInt('2777777777777')
   const seconds = Math.round((Date.now() - connection.now) / 1000.0)
   const amountToPay = pricePerSecond * BigInt(seconds)
   const delta = amountToPay - BigInt(req.body.amount)
+  console.log(amountToPay)
+  console.log(BigInt(req.body.amount))
   if (delta < -(BigInt(pricePerSecond) * BigInt(60))) {
     console.log('Underpayment')
     CONNECTIONS.revokeConnection(ipAddress)
