@@ -12,7 +12,7 @@ let Connections = require('./lib/connections.js')
 
 const CONNECTIONS = new Connections('data/data.json')
 const WEB3_API = require('web3')
-const WEB3 = new WEB3_API(`${process.env.INFURA}/${process.env.INFURA_PROJECT}`, null)
+const WEB3 = new WEB3_API(`https://${process.env.INFURA}/${process.env.INFURA_PROJECT}`, null)
 const ABI = JSON.parse(FS.readFileSync('./contracts/abi.json', 'utf-8'))
 const CONTRACT = new WEB3.eth.Contract(ABI, process.env.CONTRACT_ADDRESS)
 
