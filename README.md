@@ -99,6 +99,22 @@ Execute inside virtual environment shell:
 Notice that since the API reads and modifies iptables, this backend
 should be executed with superuser privileges.
 
+## Infura Proxy
+
+Since users will not have internet access before
+performing a transaction and In order to avoid deploying an
+Ethereum node over the raspberry; there's an Infura proxy
+that can be configured using `.env` file setting your infura
+project key and path. To execute it:
+
+```
+(venv) $ node infuraProxy.js
+Server running on port 8545
+```
+
+Given that, users have to point their MetaMask plugin to
+`http://192.168.4.1:8545` network.
+
 ## Nginx configuration
 
 In order to serve the API through 80 port:
