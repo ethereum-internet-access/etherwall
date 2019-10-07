@@ -13,7 +13,7 @@ app.listen(process.env.PROXY_PORT, '0.0.0.0', () => {
 
 app.post('/', async (req, res, next) => {
   console.log(req.body)
-  let infuraUrl = `https://${process.env.INFURA}/v3/${process.env.INFURA_PROJECT}`
+  let infuraUrl = `${process.env.INFURA}/v3/${process.env.INFURA_PROJECT}`
   console.log(infuraUrl)
   let infuraResponse = await axios.post(infuraUrl, req.body)
   console.log(infuraResponse.data)
